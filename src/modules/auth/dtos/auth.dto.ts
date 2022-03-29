@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { Users } from 'src/modules/user/user.entity';
 
 export class LoginDto {
   @IsString()
