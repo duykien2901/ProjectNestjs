@@ -1,9 +1,11 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, SignUpDto } from './dtos/auth.dto';
 import LocalAuthGuard from './guard/local.guard';
 
 @Controller('auth')
+@ApiBearerAuth()
 export class AuthController {
   constructor(private authService: AuthService) {}
 

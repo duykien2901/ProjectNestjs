@@ -1,8 +1,11 @@
 import { Exclude } from 'class-transformer';
+import { Posts } from 'src/posts/posts.enity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -27,4 +30,10 @@ export class Users {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  @OneToMany(() => Posts, (post) => post.owner)
+  posts: Posts;
 }
