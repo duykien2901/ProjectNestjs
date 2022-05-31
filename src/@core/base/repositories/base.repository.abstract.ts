@@ -16,7 +16,7 @@ import { BaseRepositoryInterface } from './base.repository.interface';
 export abstract class BaseRepositoryAbstract<T>
   implements BaseRepositoryInterface<T>
 {
-  private entity: Repository<T>;
+  public entity: Repository<T>;
 
   constructor(protected readonly repository: Repository<T>) {
     this.entity = repository;
@@ -42,8 +42,8 @@ export abstract class BaseRepositoryAbstract<T>
     return await this.entity.findOneBy({ ...filter });
   }
 
-  public async findAll(): Promise<T[]> {
-    return await this.entity.find();
+  public async findAll(filter: FindOptionsWhere<T>): Promise<T[]> {
+    return await this.entity.findBy({ ...filter });
   }
 
   public async remove(id: number): Promise<DeleteResult> {

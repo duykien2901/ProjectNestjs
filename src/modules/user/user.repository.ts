@@ -7,7 +7,7 @@ import { Users } from './user.entity';
 @Injectable()
 export class UserRepository extends BaseRepositoryAbstract<Users> {
   constructor(
-    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
+    @InjectRepository(Users) public readonly userRepository: Repository<Users>,
   ) {
     super(userRepository);
   }

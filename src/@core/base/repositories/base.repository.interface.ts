@@ -10,7 +10,7 @@ export interface BaseRepositoryInterface<T> {
 
   findAllAndCount(query: any): Promise<GetAllRes<T>>;
 
-  findAll(): Promise<T[]>;
+  findAll(filter: any): Promise<T[]>;
 
   remove(id: number): Promise<DeleteResult>;
 }
