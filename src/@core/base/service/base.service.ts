@@ -18,7 +18,7 @@ export class BaseService<T, R extends BaseRepositoryAbstract<T>> {
 
   async findAllAndCount(
     query: PaginationBasicQuery,
-    fieldQueryKeyword: string[] = ['name'],
+    fieldQueryKeyword: string[] = [],
   ): Promise<GetAllRes<T>> {
     const {
       keyword = '',
@@ -37,7 +37,7 @@ export class BaseService<T, R extends BaseRepositoryAbstract<T>> {
 
     const queryCondition = {
       ...(property ? { select: property } : {}),
-      where: [...whereQuery],
+      ...(whereQuery.length ? { where: [...whereQuery] } : {}),
       order: { ...sorts },
       take: +limit,
       skip: +offset,
