@@ -1,0 +1,49 @@
+version: '3'
+services:
+  server:
+    container_name: server_project3
+    build: 
+      context: .
+    environment:
+      LANG: C.UTF-8
+    volumes:
+     - .:/var/www/project3 
+    stdin_open: true
+    tty: true  
+    depends_on:
+      - db
+    ports:
+      - ${PORT}:3030
+  db:
+    container_name: db_project3
+    image: mysql
+    restart: always
+    volumes:
+      - ./dockers/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3308:3306"
+
+  redis:
+    container_name: redis_project3
+    image: "redis:alpine"
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - ./dockers/redis/data:/data
+    restart: always
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  redis-commander:
+    container_name: redis_command_project3
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "${REDIS_COMMAND_PORT}:8081"
+    depends_on:
+      - redis
+
