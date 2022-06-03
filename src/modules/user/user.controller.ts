@@ -1,11 +1,15 @@
 import { InjectQueue } from '@nestjs/bull';
 import {
+  CacheInterceptor,
+  CacheKey,
+  CacheTTL,
   Controller,
   Get,
   HttpException,
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Queue } from 'bull';
@@ -15,13 +19,16 @@ import { UserService } from './user.service';
 import { pick, omit } from 'lodash';
 import { GetAllRes } from 'src/@core/models/getAllResponse.model';
 import { Users } from './user.entity';
+import { CacheManagerService } from '../cache-manager/cache-manager.service';
+import { HttpCacheInterceptor } from 'src/@core/interceptor';
 
-@Controller('user')
+@Controller()
 @ApiBearerAuth()
 export class UserController {
   constructor(
     private readonly userService: UserService,
     @InjectQueue('test-queue') private queue: Queue,
+    private cacheManager: CacheManagerService,
   ) {}
 
   @Get('/:id')
@@ -30,7 +37,10 @@ export class UserController {
     return await this.userService.findById(id);
   }
 
-  @Get('/')
+  @UseInterceptors(HttpCacheInterceptor)
+  @CacheKey('user_get')
+  @CacheTTL(20)
+  @Get()
   async getAllByPage(@Query() query: any): Promise<GetAllRes<Users>> {
     try {
       const { keyword, page, limit, ...rest } = query;

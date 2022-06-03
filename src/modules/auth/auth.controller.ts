@@ -5,7 +5,7 @@ import { LoginDto, SignUpDto } from './dtos/auth.dto';
 import GoogleGuard from './guard/google.guard';
 import LocalAuthGuard from './guard/local.guard';
 
-@Controller('auth')
+@Controller()
 @ApiBearerAuth()
 export class AuthController {
   constructor(private authService: AuthService) {}

@@ -13,7 +13,7 @@ import { PostDto } from './dtos/post.dto';
 import { Posts } from './posts.enity';
 import { PostsService } from './posts.service';
 
-@Controller('posts')
+@Controller()
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 export class PostsController {

@@ -6,12 +6,15 @@ import { UserModule } from 'src/modules/user/user.module';
 import { LoggerModule } from '../../@core/logger/logger.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { FacebookController } from './facebook/facebook.controller';
+import { FacebookService } from './facebook/facebook.service';
+import { FacebookStrategy } from './strategies/facebook.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, FacebookController],
   imports: [
     UserModule,
     PassportModule,
@@ -21,6 +24,13 @@ import { LocalStrategy } from './strategies/local.strategy';
     }),
     LoggerModule,
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
+    FacebookService,
+  ],
 })
 export class AuthModule {}

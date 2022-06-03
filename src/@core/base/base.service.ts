@@ -3,15 +3,14 @@ import { cloneDeep } from 'lodash';
 import { PAGINATION_LIMIT } from 'src/@core/constants/pagination.constant';
 import { GetAllRes } from 'src/@core/models/getAllResponse.model';
 import { PaginationBasicQuery } from 'src/@core/models/schemas/pagination.model.schema';
-import { FindManyOptions, Like } from 'typeorm';
-import { BaseRepositoryAbstract } from '../repositories/base.repository.abstract';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 
 @Injectable()
-export class BaseService<T, R extends BaseRepositoryAbstract<T>> {
-  private baseRepository: R;
+export class BaseService<T> {
+  private baseRepository: Repository<T>;
   public logger: Logger;
 
-  constructor(protected readonly repository: R) {
+  constructor(protected readonly repository: Repository<T>) {
     this.baseRepository = repository;
     this.logger = new Logger('Base service');
   }
@@ -43,7 +42,7 @@ export class BaseService<T, R extends BaseRepositoryAbstract<T>> {
       skip: +offset,
     } as FindManyOptions<T>;
 
-    const { items, count } = await this.baseRepository.findAllAndCount(
+    const [items, count] = await this.baseRepository.findAndCount(
       queryCondition,
     );
     return { items, count };
