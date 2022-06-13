@@ -23,7 +23,7 @@ export class Posts {
   @Column()
   images: string;
 
-  @Column()
+  @Column({ default: () => 0 })
   views: number;
 
   @Column()
@@ -33,7 +33,7 @@ export class Posts {
   mode_hide: number;
 
   @Column()
-  owner_id: number;
+  ownerId: number;
 
   @Column()
   mentions: string;

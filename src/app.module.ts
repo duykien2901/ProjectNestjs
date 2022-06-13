@@ -6,8 +6,9 @@ import { LoggerModule } from './@core/logger/logger.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TransformInterceptor } from './@core/interceptor/transform.interceptor';
 import { QueueModule } from './modules/queue/queue.module';
-import { RouterModule } from 'nest-router';
-import { ROUTERS } from './@core/config/routers';
+import { AuthModule } from './modules/auth/auth.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -15,7 +16,9 @@ import { ROUTERS } from './@core/config/routers';
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     LoggerModule,
     QueueModule,
-    RouterModule.forRoutes(ROUTERS),
+    UserModule,
+    PostsModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [

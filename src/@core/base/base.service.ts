@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { cloneDeep } from 'lodash';
 import { PAGINATION_LIMIT } from 'src/@core/constants/pagination.constant';
 import { GetAllRes } from 'src/@core/models/getAllResponse.model';
 import { PaginationBasicQuery } from 'src/@core/models/schemas/pagination.model.schema';
@@ -17,27 +16,38 @@ export class BaseService<T> {
 
   async findAllAndCount(
     query: PaginationBasicQuery,
-    fieldQueryKeyword: string[] = [],
+    fieldQueryKeyword?: string[],
   ): Promise<GetAllRes<T>> {
     const {
       keyword = '',
-      sorts = {},
+      sorts = [],
       limit = PAGINATION_LIMIT.limit,
       page = PAGINATION_LIMIT.page,
-      property,
+      property = '',
     } = query;
+
+    const sortQuery = sorts.reduce((result, { by, direction }) => {
+      return { ...result, [by]: direction };
+    }, {});
+
+    const selectQuery = property.split(',').reduce((result, item) => {
+      return { ...result, [item]: true };
+    }, {});
+
     const offset = limit * (page - 1);
 
-    const whereQuery = [
-      ...fieldQueryKeyword.map((item) => {
-        return { [item]: Like(`%${keyword}%`) };
-      }),
-    ];
+    const whereQuery = fieldQueryKeyword
+      ? [
+          ...fieldQueryKeyword.map((item) => {
+            return { [item]: Like(`%${keyword}%`) };
+          }),
+        ]
+      : {};
 
     const queryCondition = {
-      ...(property ? { select: property } : {}),
-      ...(whereQuery.length ? { where: [...whereQuery] } : {}),
-      order: { ...sorts },
+      select: selectQuery,
+      where: whereQuery,
+      order: sortQuery,
       take: +limit,
       skip: +offset,
     } as FindManyOptions<T>;

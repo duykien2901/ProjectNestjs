@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { MODE_HIDE } from 'src/@core/enums/posts.enum';
 
 export class PostDto {
   @IsNumber()
@@ -24,7 +25,7 @@ export class PostDto {
 
   @ApiProperty()
   @IsNumber()
-  mode_hide: number;
+  mode_hide: MODE_HIDE;
 
   @ApiProperty()
   @IsString()
@@ -33,5 +34,5 @@ export class PostDto {
   @IsNumber()
   @ApiProperty()
   @IsNotEmpty()
-  owner_id: number;
+  ownerId: number;
 }

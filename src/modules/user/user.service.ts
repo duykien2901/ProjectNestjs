@@ -3,15 +3,17 @@ import { SignUpDto } from '../auth/dtos/auth.dto';
 import { Users } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { BaseService } from 'src/@core/base/base.service';
 import { CacheManagerService } from '../cache-manager/cache-manager.service';
+import { BaseTransaction } from 'src/@core/base/base.transaction';
 
 @Injectable()
 export class UserService extends BaseService<Users> {
   constructor(
     @InjectRepository(Users) public readonly repository: Repository<Users>,
     private cacheManager: CacheManagerService,
+    private baseTransaction: BaseTransaction,
   ) {
     super(repository);
   }
@@ -26,20 +28,47 @@ export class UserService extends BaseService<Users> {
     return user;
   }
 
-  async createUser(user: SignUpDto) {
-    const emailUserExist = await this.repository.findOneBy({
-      email: user.email,
-    });
-    if (emailUserExist) {
-      throw new BadRequestException('User is exist');
-    }
+  async createUser(user: SignUpDto, query?: QueryRunner) {
+    if (query) {
+      const emailUserExist = await query.manager.findOneBy(Users, {
+        email: user.email,
+      });
+      if (emailUserExist) {
+        throw new BadRequestException('User is exist');
+      }
 
-    const passwordHash = await bcrypt.hash(user.password, 10);
-    const userEntity = await this.repository.create({
-      ...user,
-      password: passwordHash,
+      const passwordHash = await bcrypt.hash(user.password, 10);
+      const userEntity = await query.manager.create(Users, {
+        ...user,
+        password: passwordHash,
+      });
+      const newUser = await query.manager.save(userEntity);
+      return newUser;
+    } else {
+      const emailUserExist = await this.repository.findOneBy({
+        email: user.email,
+      });
+      if (emailUserExist) {
+        throw new BadRequestException('User is exist');
+      }
+
+      const passwordHash = await bcrypt.hash(user.password, 10);
+      const userEntity = await this.repository.create({
+        ...user,
+        password: passwordHash,
+      });
+      const newUser = await this.repository.create(userEntity);
+      return newUser;
+    }
+  }
+
+  async getAll() {
+    return;
+  }
+
+  async testTransaction(user: SignUpDto) {
+    await this.baseTransaction.startTransaction(async (queryRunner) => {
+      await this.createUser(user, queryRunner);
     });
-    const newUser = await this.repository.create(userEntity);
-    return newUser;
   }
 }

@@ -13,3 +13,6 @@ bash:
 db-bash:
 	docker-compose exec db bash
 
+reset-nginx:
+	docker-compose restart nginx
+

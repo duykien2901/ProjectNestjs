@@ -1,5 +1,6 @@
 import { InjectQueue } from '@nestjs/bull';
 import {
+  Body,
   CacheInterceptor,
   CacheKey,
   CacheTTL,
@@ -7,22 +8,28 @@ import {
   Get,
   HttpException,
   Param,
+  Post,
   Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Queue } from 'bull';
-import { PaginationBasicQuery } from 'src/@core/models/schemas/pagination.model.schema';
+import {
+  PaginationBasic,
+  PaginationBasicQuery,
+} from 'src/@core/models/schemas/pagination.model.schema';
 import JwtAuthGuard from '../auth/guard/jwt.guard';
 import { UserService } from './user.service';
-import { pick, omit } from 'lodash';
 import { GetAllRes } from 'src/@core/models/getAllResponse.model';
 import { Users } from './user.entity';
 import { CacheManagerService } from '../cache-manager/cache-manager.service';
 import { HttpCacheInterceptor } from 'src/@core/interceptor';
+import { SignUpDto } from '../auth/dtos/auth.dto';
 
-@Controller()
+@Controller('user')
+@UseGuards(JwtAuthGuard)
+@ApiTags('users')
 @ApiBearerAuth()
 export class UserController {
   constructor(
@@ -32,7 +39,6 @@ export class UserController {
   ) {}
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
   async getProfile(@Param('id') id: number) {
     return await this.userService.findById(id);
   }
@@ -41,27 +47,22 @@ export class UserController {
   @CacheKey('user_get')
   @CacheTTL(20)
   @Get()
-  async getAllByPage(@Query() query: any): Promise<GetAllRes<Users>> {
-    try {
-      const { keyword, page, limit, ...rest } = query;
-      const paginationQuery: PaginationBasicQuery = {
-        keyword,
-        page,
-        limit,
-        sorts: rest,
-      };
-      const { items, count } = await this.userService.findAllAndCount(
-        paginationQuery,
-      );
-      return { items, count };
-    } catch (error) {
-      throw new HttpException(`${error}`, 404);
-    }
+  async getAllByPage(
+    @Query() query: PaginationBasicQuery,
+  ): Promise<GetAllRes<Users>> {
+    const { items, count } = await this.userService.findAllAndCount(query);
+    return { items, count };
   }
 
   @Get('/test/queue/:email')
-  async testQueue(@Param('email') email) {
+  async testQueue(@Param('email') email: string) {
     this.queue.add('test', { email });
     return 'hello';
+  }
+
+  @Post('test-transaction')
+  async testTransactionController(@Body() user: SignUpDto) {
+    await this.userService.testTransaction(user);
+    return true;
   }
 }

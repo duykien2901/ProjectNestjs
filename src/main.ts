@@ -4,12 +4,15 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './@core/filters/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { RedisIOAdapter } from './modules/sockets/adapters/redis.adapter';
+import { HttpLoggingInterceptor } from './@core/interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new HttpLoggingInterceptor());
 
   const config = new DocumentBuilder()
     .addBearerAuth()

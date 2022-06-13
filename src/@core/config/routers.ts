@@ -1,24 +1,20 @@
 import { Routes } from 'nest-router';
+import { AppModule } from 'src/app.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { PostsModule } from 'src/modules/posts/posts.module';
 import { UserModule } from 'src/modules/user/user.module';
 
-export const ROUTERS: Routes = [
+export const ROUTERS = [
   {
-    path: 'api/v1',
-    children: [
-      {
-        path: 'auth',
-        module: AuthModule,
-      },
-      {
-        path: 'user',
-        module: UserModule,
-      },
-      {
-        path: 'post',
-        module: PostsModule,
-      },
-    ],
+    path: 'auth',
+    module: AuthModule,
+  },
+  {
+    path: 'user',
+    module: UserModule,
+  },
+  {
+    path: 'post',
+    module: PostsModule,
   },
 ];

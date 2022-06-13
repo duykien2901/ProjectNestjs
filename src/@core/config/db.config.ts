@@ -5,6 +5,8 @@ import {
 } from '@nestjs/typeorm';
 import { Posts } from 'src/modules/posts/posts.enity';
 import { Users } from 'src/modules/user/user.entity';
+import { DataSource } from 'typeorm';
+import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 export default class TypeOrmConfig {
   static getOrmConfig(configService: ConfigService): TypeOrmModuleOptions {
     return {
@@ -24,8 +26,12 @@ export default class TypeOrmConfig {
 
 export const typeOrmConfigAsync: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
+  inject: [ConfigService],
   useFactory: async (
     configService: ConfigService,
   ): Promise<TypeOrmModuleOptions> => TypeOrmConfig.getOrmConfig(configService),
-  inject: [ConfigService],
+  connectionFactory: async (options: MysqlConnectionOptions) => {
+    const dataSource = await new DataSource(options).initialize();
+    return dataSource;
+  },
 };

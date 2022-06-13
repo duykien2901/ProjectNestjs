@@ -4,22 +4,30 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { PaginationBasicQuery } from 'src/@core/models/schemas/pagination.model.schema';
 import JwtAuthGuard from '../auth/guard/jwt.guard';
 import { PostDto } from './dtos/post.dto';
 import { Posts } from './posts.enity';
 import { PostsService } from './posts.service';
 
-@Controller()
+@Controller('post')
+@ApiTags('posts')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(private readonly postService: PostsService) {}
 
-  @Post('')
+  @Get()
+  async getAll(@Query() query: PaginationBasicQuery) {
+    return await this.postService.getPostByPage(query);
+  }
+
+  @Post()
   async createPost(@Body() postDto: PostDto): Promise<any> {
     return await this.postService.createNewPost(postDto);
   }
